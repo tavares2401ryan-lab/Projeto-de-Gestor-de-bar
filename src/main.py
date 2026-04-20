@@ -3,7 +3,18 @@ from Atendente_do_Bar import criar_atendente, listar_atendentes, atualizar_atend
 from produtos import criar_produto, listar_produtos, atualizar_produto, remover_produto
 from pedidos import criar_pedido, listar_pedidos, atualizar_pedido, remover_pedido
 
-from utils import input_seguro_int, input_seguro_float, validar_email, validar_nif
+from utils import input_seguro_float, validar_email, validar_nif
+
+
+def mostrar_lista(lista):
+    if not lista:
+        print("Nenhum registo encontrado.")
+        return
+
+    for item in lista:
+        print("-" * 40)
+        for k, v in item.items():
+            print(f"{k}: {v}")
 
 
 def menu_principal():
@@ -45,31 +56,39 @@ def menu_clientes():
         op = input("Escolha: ")
 
         if op == "1":
-            id = input_seguro_int("ID: ")
             nome = input("Nome: ")
             telefone = input("Telefone: ")
 
             email = input("Email: ")
             if not validar_email(email):
+                print("Email inválido!")
                 continue
 
             nif = input("NIF: ")
             if not validar_nif(nif):
+                print("NIF inválido!")
                 continue
 
-            criar_cliente(id, nome, telefone, email, nif)
+            res = criar_cliente(nome, telefone, email, nif)
+            print(res)
 
         elif op == "2":
-            print(listar_clientes())
+            res = listar_clientes()
+            mostrar_lista(res["data"])
 
         elif op == "3":
-            id = input_seguro_int("ID: ")
-            nome = input("Novo nome: ")
-            atualizar_cliente(id, nome)
+            id = input("ID do cliente: ")
+            nome = input("Novo nome (enter para ignorar): ")
+            ativo = input("Ativo (True/False ou vazio): ")
+
+            ativo = None if ativo == "" else ativo.lower() == "true"
+
+            res = atualizar_cliente(id, novo_nome=nome or None, ativo=ativo)
+            print(res)
 
         elif op == "4":
-            id = input_seguro_int("ID: ")
-            remover_cliente(id)
+            id = input("ID do cliente: ")
+            print(remover_cliente(id))
 
         elif op == "0":
             break
@@ -88,24 +107,28 @@ def menu_atendentes():
         op = input("Escolha: ")
 
         if op == "1":
-            id = input_seguro_int("ID: ")
             nome = input("Nome: ")
             tipo = input("Tipo: ")
             data = input("Data nascimento: ")
 
-            criar_atendente(id, nome, tipo, data)
+            print(criar_atendente(nome, tipo, data))
 
         elif op == "2":
-            print(listar_atendentes())
+            res = listar_atendentes()
+            mostrar_lista(res["data"])
 
         elif op == "3":
-            id = input_seguro_int("ID: ")
+            id = input("ID do atendente: ")
             nome = input("Novo nome: ")
-            atualizar_atendente(id, nome)
+            ativo = input("Ativo (True/False ou vazio): ")
+
+            ativo = None if ativo == "" else ativo.lower() == "true"
+
+            print(atualizar_atendente(id, novo_nome=nome or None, ativo=ativo))
 
         elif op == "4":
-            id = input_seguro_int("ID: ")
-            remover_atendente(id)
+            id = input("ID do atendente: ")
+            print(remover_atendente(id))
 
         elif op == "0":
             break
@@ -124,24 +147,25 @@ def menu_produtos():
         op = input("Escolha: ")
 
         if op == "1":
-            id = input_seguro_int("ID: ")
             nome = input("Nome: ")
             preco = input_seguro_float("Preço: ")
             categoria = input("Categoria: ")
 
-            criar_produto(id, nome, preco, categoria)
+            print(criar_produto(nome, preco, categoria))
 
         elif op == "2":
-            print(listar_produtos())
+            res = listar_produtos()
+            mostrar_lista(res["data"])
 
         elif op == "3":
-            id = input_seguro_int("ID: ")
+            id = input("ID do produto: ")
             preco = input_seguro_float("Novo preço: ")
-            atualizar_produto(id, preco)
+
+            print(atualizar_produto(id, preco))
 
         elif op == "4":
-            id = input_seguro_int("ID: ")
-            remover_produto(id)
+            id = input("ID do produto: ")
+            print(remover_produto(id))
 
         elif op == "0":
             break
@@ -160,26 +184,33 @@ def menu_pedidos():
         op = input("Escolha: ")
 
         if op == "1":
-            id = input_seguro_int("ID: ")
-            cliente = input_seguro_int("ID Cliente: ")
-            atendente = input_seguro_int("ID Atendente: ")
+            cliente = input("ID Cliente: ")
+            atendente = input("ID Atendente: ")
             produtos = input("Produtos (vírgula): ").split(",")
             valor = input_seguro_float("Valor total: ")
 
-            criar_pedido(id, cliente, atendente, produtos, valor)
+            print(criar_pedido(cliente, atendente, produtos, valor))
 
         elif op == "2":
-            print(listar_pedidos())
+            res = listar_pedidos()
+            mostrar_lista(res["data"])
 
         elif op == "3":
-            id = input_seguro_int("ID: ")
+            id = input("ID do pedido: ")
             valor = input_seguro_float("Novo valor: ")
-            atualizar_pedido(id, novo_valor=valor)
+
+            print(atualizar_pedido(id, novo_valor=valor))
 
         elif op == "4":
-            id = input_seguro_int("ID: ")
-            remover_pedido(id)
+            id = input("ID do pedido: ")
+            print(remover_pedido(id))
 
+        elif op == "0":
+            break
+
+
+# --------- INICIAR ----------
+menu_principal()
         elif op == "0":
             break
 
