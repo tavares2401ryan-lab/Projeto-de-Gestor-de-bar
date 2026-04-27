@@ -1,6 +1,6 @@
 # Projeto-de-Gestor-de-bar
 
--1. O que o teu sistema faz no geral
+-1. O que meu sistema faz no geral
 
 Tu tens 4 “bases de dados” em listas:
 
