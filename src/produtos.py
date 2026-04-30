@@ -79,3 +79,5 @@ def remover_produto(id, auth=True):
             return {"status": 200, "mensagem": "Produto removido"}
 
     return {"status": 404, "erro": "Produto não encontrado"}
+    .
+    
