@@ -1,10 +1,39 @@
 import uuid
+import json
+import os
+
+ARQUIVO = "clientes.json"
 
 clientes = []
+
+
+# =========================
+# PERSISTÊNCIA
+# =========================
+
+def salvar_clientes():
+    with open(ARQUIVO, "w", encoding="utf-8") as arquivo:
+        json.dump(clientes, arquivo, indent=4, ensure_ascii=False)
+
+
+def carregar_clientes():
+    global clientes
+
+    if os.path.exists(ARQUIVO):
+        with open(ARQUIVO, "r", encoding="utf-8") as arquivo:
+            clientes = json.load(arquivo)
+    else:
+        clientes = []
+
+
+# carrega ao iniciar
+carregar_clientes()
+
 
 # =========================
 # AUTENTICAÇÃO (SIMULADA)
 # =========================
+
 def autorizado(auth=True):
     return auth
 
@@ -12,6 +41,7 @@ def autorizado(auth=True):
 # =========================
 # VALIDAÇÕES
 # =========================
+
 def gerar_id():
     return str(uuid.uuid4())
 
@@ -52,7 +82,6 @@ def criar_cliente(nome, telefone, email, nif, auth=True):
     if not validar_nif(nif):
         return {"status": 400, "erro": "NIF inválido"}
 
-    # evitar duplicados
     for c in clientes:
         if c["email"] == email:
             return {"status": 409, "erro": "Email já cadastrado"}
@@ -65,10 +94,13 @@ def criar_cliente(nome, telefone, email, nif, auth=True):
         "telefone": telefone,
         "email": email,
         "nif": nif,
-        "ativo": False  # começa inativo
+        "ativo": False
     }
 
     clientes.append(cliente)
+
+    salvar_clientes()  # 🔥 persistência
+
     return {"status": 201, "data": cliente}
 
 
@@ -120,6 +152,8 @@ def atualizar_cliente(id, novo_nome=None, novo_telefone=None, novo_email=None, n
             if ativo is not None:
                 cliente["ativo"] = bool(ativo)
 
+            salvar_clientes()  # 🔥 persistência
+
             return {"status": 200, "data": cliente}
 
     return {"status": 404, "erro": "Cliente não encontrado"}
@@ -132,6 +166,9 @@ def remover_cliente(id, auth=True):
     for cliente in clientes:
         if cliente["id"] == id:
             clientes.remove(cliente)
+
+            salvar_clientes()  # 🔥 persistência
+
             return {"status": 200, "mensagem": "Cliente removido"}
 
     return {"status": 404, "erro": "Cliente não encontrado"}
