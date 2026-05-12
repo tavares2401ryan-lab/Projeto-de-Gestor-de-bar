@@ -1,18 +1,37 @@
 import uuid
+import json
+import os
 
-# lista inicial (exemplo de bar)
-produtos = [
-    {"id": str(uuid.uuid4()), "nome": "Cerveja", "preco": 2.5, "categoria": "Bebida"},
-    {"id": str(uuid.uuid4()), "nome": "Vinho", "preco": 4.0, "categoria": "Bebida"},
-    {"id": str(uuid.uuid4()), "nome": "Whisky", "preco": 6.5, "categoria": "Bebida"},
-    {"id": str(uuid.uuid4()), "nome": "Água", "preco": 1.0, "categoria": "Bebida"},
-    {"id": str(uuid.uuid4()), "nome": "Batata Frita", "preco": 3.0, "categoria": "Comida"},
-]
+ARQUIVO = "produtos.json"
+
+
+# =========================
+# PERSISTÊNCIA JSON
+# =========================
+
+def salvar_produtos():
+    with open(ARQUIVO, "w", encoding="utf-8") as arquivo:
+        json.dump(produtos, arquivo, indent=4, ensure_ascii=False)
+
+
+def carregar_produtos():
+    global produtos
+
+    if os.path.exists(ARQUIVO):
+        with open(ARQUIVO, "r", encoding="utf-8") as arquivo:
+            produtos = json.load(arquivo)
+    else:
+        produtos = []
+
+
+# carrega ao iniciar
+carregar_produtos()
 
 
 # =========================
 # AUTENTICAÇÃO (SIMULADA)
 # =========================
+
 def autorizado(auth=True):
     return auth
 
@@ -52,6 +71,9 @@ def criar_produto(nome, preco, categoria, auth=True):
     }
 
     produtos.append(produto)
+
+    salvar_produtos()  # 🔥 salva no JSON
+
     return {"status": 201, "data": produto}
 
 
@@ -85,7 +107,7 @@ def atualizar_produto(id, novo_nome=None, novo_preco=None, nova_categoria=None, 
                     return {"status": 400, "erro": "Nome inválido"}
                 produto["nome"] = novo_nome
 
-            if novo_preco is not None:  # 🔥 corrige bug do 0
+            if novo_preco is not None:
                 if not validar_preco(novo_preco):
                     return {"status": 400, "erro": "Preço inválido"}
                 produto["preco"] = novo_preco
@@ -95,6 +117,8 @@ def atualizar_produto(id, novo_nome=None, novo_preco=None, nova_categoria=None, 
 
             if ativo is not None:
                 produto["ativo"] = bool(ativo)
+
+            salvar_produtos()  # 🔥 salva alteração
 
             return {"status": 200, "data": produto}
 
@@ -108,10 +132,9 @@ def remover_produto(id, auth=True):
     for produto in produtos:
         if produto["id"] == id:
             produtos.remove(produto)
+
+            salvar_produtos()  # 🔥 salva remoção
+
             return {"status": 200, "mensagem": "Produto removido"}
 
     return {"status": 404, "erro": "Produto não encontrado"}
-    .
-    
-
-
