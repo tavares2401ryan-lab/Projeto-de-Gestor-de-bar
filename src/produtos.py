@@ -24,9 +24,6 @@ def carregar_produtos():
         produtos = []
 
 
-# carrega ao iniciar
-carregar_produtos()
-
 
 # =========================
 # AUTENTICAÇÃO (SIMULADA)
@@ -51,6 +48,10 @@ def validar_preco(preco):
 # =========================
 # PRODUTOS - CRUD COMPLETO
 # =========================
+
+
+# carrega ao iniciar
+carregar_produtos()
 
 def criar_produto(nome, preco, categoria, auth=True):
     if not autorizado(auth):
