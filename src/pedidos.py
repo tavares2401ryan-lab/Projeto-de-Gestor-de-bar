@@ -1,12 +1,40 @@
 import uuid
+import json
+import os
 from produtos import produtos  # 🔥 usa a lista real de produtos
+
+ARQUIVO = "pedidos.json"
 
 pedidos = []
 
 
 # =========================
+# PERSISTÊNCIA
+# =========================
+
+def salvar_pedidos():
+    with open(ARQUIVO, "w", encoding="utf-8") as arquivo:
+        json.dump(pedidos, arquivo, indent=4, ensure_ascii=False)
+
+
+def carregar_pedidos():
+    global pedidos
+
+    if os.path.exists(ARQUIVO):
+        with open(ARQUIVO, "r", encoding="utf-8") as arquivo:
+            pedidos = json.load(arquivo)
+    else:
+        pedidos = []
+
+
+# carrega ao iniciar
+carregar_pedidos()
+
+
+# =========================
 # AUTENTICAÇÃO (SIMULADA)
 # =========================
+
 def autorizado(auth=True):
     return auth
 
@@ -18,6 +46,7 @@ def gerar_id():
 # =========================
 # CALCULAR TOTAL REAL
 # =========================
+
 def calcular_total(lista_produtos):
     total = 0
 
@@ -49,6 +78,9 @@ def criar_pedido(id_cliente, id_atendente, produtos_lista, auth=True):
     }
 
     pedidos.append(pedido)
+
+    salvar_pedidos()  # 🔥 persistência
+
     return {"status": 201, "data": pedido}
 
 
@@ -81,6 +113,8 @@ def atualizar_pedido(id, novos_produtos=None, auth=True):
                 pedido["produtos"] = novos_produtos
                 pedido["valor_total"] = calcular_total(novos_produtos)
 
+            salvar_pedidos()  # 🔥 persistência
+
             return {"status": 200, "data": pedido}
 
     return {"status": 404, "erro": "Pedido não encontrado"}
@@ -93,7 +127,9 @@ def remover_pedido(id, auth=True):
     for pedido in pedidos:
         if pedido["id"] == id:
             pedidos.remove(pedido)
+
+            salvar_pedidos()  # 🔥 persistência
+
             return {"status": 200, "mensagem": "Pedido removido"}
 
     return {"status": 404, "erro": "Pedido não encontrado"}
-
