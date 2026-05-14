@@ -26,7 +26,8 @@ def carregar_atendentes():
         atendentes = []
 
 
-
+# 🔥 carrega ao iniciar
+carregar_atendentes()
 
 
 # =========================
@@ -48,8 +49,6 @@ def validar_nome(nome):
 # =========================
 # ATENDENTES - CRUD
 # =========================
-# carrega ao iniciar
-carregar_atendentes()
 
 def criar_atendente(nome, tipo, data_nascimento, auth=True):
     if not autorizado(auth):
@@ -68,7 +67,8 @@ def criar_atendente(nome, tipo, data_nascimento, auth=True):
 
     atendentes.append(atendente)
 
-    salvar_atendentes()  # 🔥 persistência
+    salvar_atendentes()
+    carregar_atendentes()  # 🔥 recarrega
 
     return {"status": 201, "data": atendente}
 
@@ -76,6 +76,8 @@ def criar_atendente(nome, tipo, data_nascimento, auth=True):
 def listar_atendentes(auth=True):
     if not autorizado(auth):
         return {"status": 401, "erro": "Unauthorized"}
+
+    carregar_atendentes()  # 🔥 sempre atualiza lista
 
     return {"status": 200, "data": atendentes}
 
@@ -90,12 +92,14 @@ def atualizar_atendente(id, novo_nome=None, ativo=None, auth=True):
             if novo_nome:
                 if not validar_nome(novo_nome):
                     return {"status": 400, "erro": "Nome inválido"}
+
                 atendente["nome"] = novo_nome
 
             if ativo is not None:
                 atendente["ativo"] = bool(ativo)
 
-            salvar_atendentes()  # 🔥 persistência
+            salvar_atendentes()
+            carregar_atendentes()  # 🔥 recarrega
 
             return {"status": 200, "data": atendente}
 
@@ -108,9 +112,11 @@ def remover_atendente(id, auth=True):
 
     for atendente in atendentes:
         if atendente["id"] == id:
+
             atendentes.remove(atendente)
 
-            salvar_atendentes()  # 🔥 persistência
+            salvar_atendentes()
+            carregar_atendentes()  # 🔥 recarrega
 
             return {"status": 200, "mensagem": "Removido com sucesso"}
 
