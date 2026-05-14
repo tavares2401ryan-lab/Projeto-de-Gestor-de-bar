@@ -27,10 +27,6 @@ def carregar_pedidos():
         pedidos = []
 
 
-# carrega ao iniciar
-carregar_pedidos()
-
-
 # =========================
 # AUTENTICAÇÃO (SIMULADA)
 # =========================
@@ -64,6 +60,11 @@ def calcular_total(lista_produtos):
 # =========================
 # PEDIDOS - CRUD COMPLETO
 # =========================
+
+# carrega ao iniciar
+carregar_pedidos()
+
+
 
 def criar_pedido(id_cliente, id_atendente, produtos_lista, auth=True):
     if not autorizado(auth):
