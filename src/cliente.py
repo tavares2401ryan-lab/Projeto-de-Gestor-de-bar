@@ -26,10 +26,6 @@ def carregar_clientes():
         clientes = []
 
 
-# 🔥 carrega ao iniciar
-carregar_clientes()
-
-
 # =========================
 # AUTENTICAÇÃO (SIMULADA)
 # =========================
@@ -67,6 +63,7 @@ def validar_nif(nif):
 # =========================
 
 def criar_cliente(nome, telefone, email, nif, auth=True):
+    carregar_clientes()
     if not autorizado(auth):
         return {"status": 401, "erro": "Unauthorized"}
 
@@ -101,7 +98,7 @@ def criar_cliente(nome, telefone, email, nif, auth=True):
     clientes.append(cliente)
 
     salvar_clientes()
-    carregar_clientes()  # 🔥 recarrega
+  
 
     return {"status": 201, "data": cliente}
 
@@ -150,18 +147,21 @@ def atualizar_cliente(
                 cliente["nome"] = novo_nome
 
             if novo_telefone:
+                carregar_clientes()
                 if not validar_telefone(novo_telefone):
                     return {"status": 400, "erro": "Telefone inválido"}
 
                 cliente["telefone"] = novo_telefone
 
             if novo_email:
+                carregar_clientes()
                 if not validar_email(novo_email):
                     return {"status": 400, "erro": "Email inválido"}
 
                 cliente["email"] = novo_email
 
             if novo_nif:
+                carregar_clientes()
                 if not validar_nif(novo_nif):
                     return {"status": 400, "erro": "NIF inválido"}
 
@@ -171,7 +171,7 @@ def atualizar_cliente(
                 cliente["ativo"] = bool(ativo)
 
             salvar_clientes()
-            carregar_clientes()  # 🔥 recarrega
+            
 
             return {"status": 200, "data": cliente}
 
@@ -179,6 +179,7 @@ def atualizar_cliente(
 
 
 def remover_cliente(id, auth=True):
+    carregar_clientes()
     if not autorizado(auth):
         return {"status": 401, "erro": "Unauthorized"}
 
@@ -188,7 +189,6 @@ def remover_cliente(id, auth=True):
             clientes.remove(cliente)
 
             salvar_clientes()
-            carregar_clientes()  # 🔥 recarrega
 
             return {"status": 200, "mensagem": "Cliente removido"}
 
