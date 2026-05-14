@@ -26,10 +26,6 @@ def carregar_atendentes():
         atendentes = []
 
 
-# 🔥 carrega ao iniciar
-carregar_atendentes()
-
-
 # =========================
 # AUTENTICAÇÃO (SIMULADA)
 # =========================
@@ -99,7 +95,6 @@ def atualizar_atendente(id, novo_nome=None, ativo=None, auth=True):
                 atendente["ativo"] = bool(ativo)
 
             salvar_atendentes()
-
             return {"status": 200, "data": atendente}
 
     return {"status": 404, "erro": "Not Found"}
@@ -116,7 +111,6 @@ def remover_atendente(id, auth=True):
             atendentes.remove(atendente)
 
             salvar_atendentes()
-
             return {"status": 200, "mensagem": "Removido com sucesso"}
 
     return {"status": 404, "erro": "Not Found"}
