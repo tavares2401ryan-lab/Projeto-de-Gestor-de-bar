@@ -26,8 +26,6 @@ def carregar_clientes():
         clientes = []
 
 
-# carrega ao iniciar
-carregar_clientes()
 
 
 # =========================
@@ -65,6 +63,9 @@ def validar_nif(nif):
 # =========================
 # CLIENTES - CRUD COMPLETO
 # =========================
+# carrega ao iniciar
+carregar_clientes()
+
 
 def criar_cliente(nome, telefone, email, nif, auth=True):
     if not autorizado(auth):
