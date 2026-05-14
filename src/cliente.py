@@ -134,6 +134,7 @@ def atualizar_cliente(
     ativo=None,
     auth=True
 ):
+    carregar_clientes()
     if not autorizado(auth):
         return {"status": 401, "erro": "Unauthorized"}
 
@@ -147,7 +148,7 @@ def atualizar_cliente(
                 cliente["nome"] = novo_nome
 
             if novo_telefone:
-                carregar_clientes()
+                
                 if not validar_telefone(novo_telefone):
                     return {"status": 400, "erro": "Telefone inválido"}
 
