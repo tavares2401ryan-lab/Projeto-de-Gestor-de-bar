@@ -33,8 +33,6 @@ def carregar_pedidos():
         pedidos = []
 
 
-# 🔥 CARREGA AO INICIAR (IMPORTANTE)
-carregar_pedidos()
 
 
 # =========================
@@ -72,6 +70,7 @@ def calcular_total(lista_produtos):
 # =========================
 
 def criar_pedido(id_cliente, id_atendente, produtos_lista, auth=True):
+    carregar_pedidos()
     if not autorizado(auth):
         return {"status": 401, "erro": "Unauthorized"}
 
@@ -86,7 +85,7 @@ def criar_pedido(id_cliente, id_atendente, produtos_lista, auth=True):
     pedidos.append(pedido)
 
     salvar_pedidos()
-    carregar_pedidos()  # 🔥 garante sync
+  
 
     return {"status": 201, "data": pedido}
 
@@ -114,6 +113,7 @@ def obter_pedido(id, auth=True):
 
 
 def atualizar_pedido(id, novos_produtos=None, auth=True):
+    carregar_pedidos()
     if not autorizado(auth):
         return {"status": 401, "erro": "Unauthorized"}
 
@@ -125,7 +125,6 @@ def atualizar_pedido(id, novos_produtos=None, auth=True):
                 pedido["valor_total"] = calcular_total(novos_produtos)
 
             salvar_pedidos()
-            carregar_pedidos()  # 🔥 sync
 
             return {"status": 200, "data": pedido}
 
@@ -133,6 +132,7 @@ def atualizar_pedido(id, novos_produtos=None, auth=True):
 
 
 def remover_pedido(id, auth=True):
+    carregar_pedidos()
     if not autorizado(auth):
         return {"status": 401, "erro": "Unauthorized"}
 
@@ -142,7 +142,6 @@ def remover_pedido(id, auth=True):
             pedidos.remove(pedido)
 
             salvar_pedidos()
-            carregar_pedidos()  # 🔥 sync
 
             return {"status": 200, "mensagem": "Pedido removido"}
 
