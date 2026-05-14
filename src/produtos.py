@@ -4,6 +4,8 @@ import os
 
 ARQUIVO = "produtos.json"
 
+produtos = []
+
 
 # =========================
 # PERSISTÊNCIA JSON
@@ -19,10 +21,19 @@ def carregar_produtos():
 
     if os.path.exists(ARQUIVO):
         with open(ARQUIVO, "r", encoding="utf-8") as arquivo:
-            produtos = json.load(arquivo)
+            conteudo = arquivo.read().strip()
+
+            if not conteudo:
+                produtos = []
+                return
+
+            produtos = json.loads(conteudo)
     else:
         produtos = []
 
+
+# 🔥 carrega ao iniciar (IMPORTANTE)
+carregar_produtos()
 
 
 # =========================
@@ -49,10 +60,6 @@ def validar_preco(preco):
 # PRODUTOS - CRUD COMPLETO
 # =========================
 
-
-# carrega ao iniciar
-carregar_produtos()
-
 def criar_produto(nome, preco, categoria, auth=True):
     if not autorizado(auth):
         return {"status": 401, "erro": "Unauthorized"}
@@ -73,7 +80,8 @@ def criar_produto(nome, preco, categoria, auth=True):
 
     produtos.append(produto)
 
-    salvar_produtos()  # 🔥 salva no JSON
+    salvar_produtos()
+    carregar_produtos()  # 🔥 sync
 
     return {"status": 201, "data": produto}
 
@@ -82,12 +90,16 @@ def listar_produtos(auth=True):
     if not autorizado(auth):
         return {"status": 401, "erro": "Unauthorized"}
 
+    carregar_produtos()  # 🔥 sempre atualizado
+
     return {"status": 200, "data": produtos}
 
 
 def obter_produto(id, auth=True):
     if not autorizado(auth):
         return {"status": 401, "erro": "Unauthorized"}
+
+    carregar_produtos()
 
     for produto in produtos:
         if produto["id"] == id:
@@ -119,7 +131,8 @@ def atualizar_produto(id, novo_nome=None, novo_preco=None, nova_categoria=None, 
             if ativo is not None:
                 produto["ativo"] = bool(ativo)
 
-            salvar_produtos()  # 🔥 salva alteração
+            salvar_produtos()
+            carregar_produtos()  # 🔥 sync
 
             return {"status": 200, "data": produto}
 
@@ -132,9 +145,11 @@ def remover_produto(id, auth=True):
 
     for produto in produtos:
         if produto["id"] == id:
+
             produtos.remove(produto)
 
-            salvar_produtos()  # 🔥 salva remoção
+            salvar_produtos()
+            carregar_produtos()  # 🔥 sync
 
             return {"status": 200, "mensagem": "Produto removido"}
 
