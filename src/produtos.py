@@ -32,10 +32,6 @@ def carregar_produtos():
         produtos = []
 
 
-# 🔥 carrega ao iniciar (IMPORTANTE)
-carregar_produtos()
-
-
 # =========================
 # AUTENTICAÇÃO (SIMULADA)
 # =========================
@@ -61,6 +57,7 @@ def validar_preco(preco):
 # =========================
 
 def criar_produto(nome, preco, categoria, auth=True):
+    carregar_produtos()
     if not autorizado(auth):
         return {"status": 401, "erro": "Unauthorized"}
 
@@ -81,7 +78,6 @@ def criar_produto(nome, preco, categoria, auth=True):
     produtos.append(produto)
 
     salvar_produtos()
-    carregar_produtos()  # 🔥 sync
 
     return {"status": 201, "data": produto}
 
@@ -109,6 +105,7 @@ def obter_produto(id, auth=True):
 
 
 def atualizar_produto(id, novo_nome=None, novo_preco=None, nova_categoria=None, ativo=None, auth=True):
+    carregar_produtos()
     if not autorizado(auth):
         return {"status": 401, "erro": "Unauthorized"}
 
@@ -132,7 +129,6 @@ def atualizar_produto(id, novo_nome=None, novo_preco=None, nova_categoria=None, 
                 produto["ativo"] = bool(ativo)
 
             salvar_produtos()
-            carregar_produtos()  # 🔥 sync
 
             return {"status": 200, "data": produto}
 
@@ -140,6 +136,7 @@ def atualizar_produto(id, novo_nome=None, novo_preco=None, nova_categoria=None, 
 
 
 def remover_produto(id, auth=True):
+    carregar_produtos()
     if not autorizado(auth):
         return {"status": 401, "erro": "Unauthorized"}
 
@@ -149,7 +146,6 @@ def remover_produto(id, auth=True):
             produtos.remove(produto)
 
             salvar_produtos()
-            carregar_produtos()  # 🔥 sync
 
             return {"status": 200, "mensagem": "Produto removido"}
 
