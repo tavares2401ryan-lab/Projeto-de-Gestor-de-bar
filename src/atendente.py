@@ -26,8 +26,7 @@ def carregar_atendentes():
         atendentes = []
 
 
-# carrega ao iniciar
-carregar_atendentes()
+
 
 
 # =========================
@@ -49,6 +48,8 @@ def validar_nome(nome):
 # =========================
 # ATENDENTES - CRUD
 # =========================
+# carrega ao iniciar
+carregar_atendentes()
 
 def criar_atendente(nome, tipo, data_nascimento, auth=True):
     if not autorizado(auth):
