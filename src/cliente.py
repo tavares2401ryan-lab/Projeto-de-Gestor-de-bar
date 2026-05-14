@@ -26,6 +26,8 @@ def carregar_clientes():
         clientes = []
 
 
+# 🔥 carrega ao iniciar
+carregar_clientes()
 
 
 # =========================
@@ -63,9 +65,6 @@ def validar_nif(nif):
 # =========================
 # CLIENTES - CRUD COMPLETO
 # =========================
-# carrega ao iniciar
-carregar_clientes()
-
 
 def criar_cliente(nome, telefone, email, nif, auth=True):
     if not autorizado(auth):
@@ -86,6 +85,7 @@ def criar_cliente(nome, telefone, email, nif, auth=True):
     for c in clientes:
         if c["email"] == email:
             return {"status": 409, "erro": "Email já cadastrado"}
+
         if c["nif"] == nif:
             return {"status": 409, "erro": "NIF já cadastrado"}
 
@@ -100,7 +100,8 @@ def criar_cliente(nome, telefone, email, nif, auth=True):
 
     clientes.append(cliente)
 
-    salvar_clientes()  # 🔥 persistência
+    salvar_clientes()
+    carregar_clientes()  # 🔥 recarrega
 
     return {"status": 201, "data": cliente}
 
@@ -109,12 +110,16 @@ def listar_clientes(auth=True):
     if not autorizado(auth):
         return {"status": 401, "erro": "Unauthorized"}
 
+    carregar_clientes()  # 🔥 atualiza lista
+
     return {"status": 200, "data": clientes}
 
 
 def obter_cliente(id, auth=True):
     if not autorizado(auth):
         return {"status": 401, "erro": "Unauthorized"}
+
+    carregar_clientes()  # 🔥 atualiza lista
 
     for cliente in clientes:
         if cliente["id"] == id:
@@ -123,7 +128,15 @@ def obter_cliente(id, auth=True):
     return {"status": 404, "erro": "Cliente não encontrado"}
 
 
-def atualizar_cliente(id, novo_nome=None, novo_telefone=None, novo_email=None, novo_nif=None, ativo=None, auth=True):
+def atualizar_cliente(
+    id,
+    novo_nome=None,
+    novo_telefone=None,
+    novo_email=None,
+    novo_nif=None,
+    ativo=None,
+    auth=True
+):
     if not autorizado(auth):
         return {"status": 401, "erro": "Unauthorized"}
 
@@ -133,27 +146,32 @@ def atualizar_cliente(id, novo_nome=None, novo_telefone=None, novo_email=None, n
             if novo_nome:
                 if not validar_nome(novo_nome):
                     return {"status": 400, "erro": "Nome inválido"}
+
                 cliente["nome"] = novo_nome
 
             if novo_telefone:
                 if not validar_telefone(novo_telefone):
                     return {"status": 400, "erro": "Telefone inválido"}
+
                 cliente["telefone"] = novo_telefone
 
             if novo_email:
                 if not validar_email(novo_email):
                     return {"status": 400, "erro": "Email inválido"}
+
                 cliente["email"] = novo_email
 
             if novo_nif:
                 if not validar_nif(novo_nif):
                     return {"status": 400, "erro": "NIF inválido"}
+
                 cliente["nif"] = novo_nif
 
             if ativo is not None:
                 cliente["ativo"] = bool(ativo)
 
-            salvar_clientes()  # 🔥 persistência
+            salvar_clientes()
+            carregar_clientes()  # 🔥 recarrega
 
             return {"status": 200, "data": cliente}
 
@@ -166,9 +184,11 @@ def remover_cliente(id, auth=True):
 
     for cliente in clientes:
         if cliente["id"] == id:
+
             clientes.remove(cliente)
 
-            salvar_clientes()  # 🔥 persistência
+            salvar_clientes()
+            carregar_clientes()  # 🔥 recarrega
 
             return {"status": 200, "mensagem": "Cliente removido"}
 
