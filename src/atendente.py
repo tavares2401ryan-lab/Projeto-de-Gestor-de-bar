@@ -1,6 +1,12 @@
 import uuid
 import json
 import os
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(levelname)s - %(message)s"
+)
 
 ARQUIVO = "atendentes.json"
 
@@ -15,13 +21,23 @@ def salvar_atendentes():
     with open(ARQUIVO, "w", encoding="utf-8") as arquivo:
         json.dump(atendentes, arquivo, indent=4, ensure_ascii=False)
 
+    logging.info("Atendentes salvos")
+
 
 def carregar_atendentes():
     global atendentes
 
     if os.path.exists(ARQUIVO):
-        with open(ARQUIVO, "r", encoding="utf-8") as arquivo:
-            atendentes = json.load(arquivo)
+        try:
+            with open(ARQUIVO, "r", encoding="utf-8") as arquivo:
+                atendentes = json.load(arquivo)
+
+            logging.info("Atendentes carregados")
+
+        except json.JSONDecodeError:
+            logging.error("Erro JSON")
+            atendentes = []
+
     else:
         atendentes = []
 
@@ -47,11 +63,14 @@ def validar_nome(nome):
 # =========================
 
 def criar_atendente(nome, tipo, data_nascimento, auth=True):
-    carregar_atendentes()  # 🔥 recarrega
+    carregar_atendentes()
+
     if not autorizado(auth):
+        logging.error("Sem autorização")
         return {"status": 401, "erro": "Unauthorized"}
 
     if not validar_nome(nome):
+        logging.warning("Nome inválido")
         return {"status": 400, "erro": "Nome deve conter apenas letras"}
 
     atendente = {
@@ -66,27 +85,34 @@ def criar_atendente(nome, tipo, data_nascimento, auth=True):
 
     salvar_atendentes()
 
+    logging.info("Atendente criado")
+
     return {"status": 201, "data": atendente}
 
 
 def listar_atendentes(auth=True):
     if not autorizado(auth):
+        logging.error("Sem autorização")
         return {"status": 401, "erro": "Unauthorized"}
 
-    carregar_atendentes()  # 🔥 sempre atualiza lista
+    carregar_atendentes()
 
     return {"status": 200, "data": atendentes}
 
 
 def atualizar_atendente(id, novo_nome=None, ativo=None, auth=True):
     if not autorizado(auth):
+        logging.error("Sem autorização")
         return {"status": 401, "erro": "Unauthorized"}
-    carregar_atendentes()  # 🔥 recarrega
+
+    carregar_atendentes()
+
     for atendente in atendentes:
         if atendente["id"] == id:
 
             if novo_nome:
                 if not validar_nome(novo_nome):
+                    logging.warning("Nome inválido")
                     return {"status": 400, "erro": "Nome inválido"}
 
                 atendente["nome"] = novo_nome
@@ -95,14 +121,21 @@ def atualizar_atendente(id, novo_nome=None, ativo=None, auth=True):
                 atendente["ativo"] = bool(ativo)
 
             salvar_atendentes()
+
+            logging.info("Atendente atualizado")
+
             return {"status": 200, "data": atendente}
+
+    logging.warning("Atendente não encontrado")
 
     return {"status": 404, "erro": "Not Found"}
 
 
 def remover_atendente(id, auth=True):
-    carregar_atendentes()  # 🔥 recarrega
+    carregar_atendentes()
+
     if not autorizado(auth):
+        logging.error("Sem autorização")
         return {"status": 401, "erro": "Unauthorized"}
 
     for atendente in atendentes:
@@ -111,6 +144,11 @@ def remover_atendente(id, auth=True):
             atendentes.remove(atendente)
 
             salvar_atendentes()
+
+            logging.warning("Atendente removido")
+
             return {"status": 200, "mensagem": "Removido com sucesso"}
+
+    logging.warning("Atendente não encontrado")
 
     return {"status": 404, "erro": "Not Found"}
