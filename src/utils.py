@@ -36,3 +36,4 @@ def input_seguro_float(mensagem):
         if convertido is not None:
             return convertido
         print("Erro: introduza um número válido!")
+#teste.py

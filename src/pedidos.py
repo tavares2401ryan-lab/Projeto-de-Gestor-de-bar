@@ -33,8 +33,6 @@ def carregar_pedidos():
         pedidos = []
 
 
-
-
 # =========================
 # AUTENTICAÇÃO (SIMULADA)
 # =========================
@@ -85,7 +83,6 @@ def criar_pedido(id_cliente, id_atendente, produtos_lista, auth=True):
     pedidos.append(pedido)
 
     salvar_pedidos()
-  
 
     return {"status": 201, "data": pedido}
 
@@ -138,7 +135,6 @@ def remover_pedido(id, auth=True):
 
     for pedido in pedidos:
         if pedido["id"] == id:
-
             pedidos.remove(pedido)
 
             salvar_pedidos()
