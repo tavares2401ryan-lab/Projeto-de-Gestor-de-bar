@@ -1,0 +1,72 @@
+[
+    {
+        "id": "8527fea1-ee8d-4a6d-9d04-3e0f871d871f",
+        "nome": "Super Bock",
+        "preco": 1.5,
+        "categoria": "Bebida",
+        "ativo": true
+    },
+    {
+        "id": "75f0897b-e3d6-4793-8658-d54b0f38f150",
+        "nome": "Sagres",
+        "preco": 1.5,
+        "categoria": "Bebida",
+        "ativo": true
+    },
+    {
+        "id": "efaa76a7-0d26-4a70-8e11-640c12354a39",
+        "nome": "Água",
+        "preco": 1.0,
+        "categoria": "Bebida",
+        "ativo": true
+    },
+    {
+        "id": "7869a149-bcca-4048-95b8-a6be216b0f0a",
+        "nome": "Sumo Laranja",
+        "preco": 2.0,
+        "categoria": "Bebida",
+        "ativo": true
+    },
+    {
+        "id": "4234b82f-5213-4700-b97b-02434d5ef418",
+        "nome": "Café",
+        "preco": 0.8,
+        "categoria": "Bebida",
+        "ativo": true
+    },
+    {
+        "id": "0ea8072e-7184-48a2-9f2e-b9e53b160151",
+        "nome": "Tosta Mista",
+        "preco": 3.5,
+        "categoria": "Comida",
+        "ativo": true
+    },
+    {
+        "id": "3b1a7c32-f6f9-4d9b-ae8c-12030de80c0b",
+        "nome": "Francesinha",
+        "preco": 9.0,
+        "categoria": "Comida",
+        "ativo": true
+    },
+    {
+        "id": "8c15441a-6b01-4e82-8f57-926fb9c2e9ce",
+        "nome": "Pastel de Nata",
+        "preco": 1.2,
+        "categoria": "Sobremesa",
+        "ativo": true
+    },
+    {
+        "id": "96fec721-cda5-4a31-a90a-bcc9737314f4",
+        "nome": "Amendoins",
+        "preco": 1.0,
+        "categoria": "Snack",
+        "ativo": true
+    },
+    {
+        "id": "2ed50d63-133f-42bb-81e6-f7615f8ffef3",
+        "nome": "Batata Frita",
+        "preco": 2.5,
+        "categoria": "Snack",
+        "ativo": true
+    }
+]

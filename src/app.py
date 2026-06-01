@@ -1,7 +1,7 @@
 from tkinter import *
-from tkinter import ttk, messagebox
+from tkinter import ttk
 
-from cliente import listar_clientes, criar_cliente
+from cliente import listar_clientes
 from produtos import listar_produtos
 from atendente import listar_atendentes
 from pedidos import listar_pedidos
@@ -12,228 +12,267 @@ from pedidos import listar_pedidos
 # =========================
 
 janela = Tk()
-janela.title("Sistema de Gestão de Bar")
-janela.geometry("600x400")
-janela.resizable(False, False)
+janela.title("🍺 Sistema de Gestão de Bar")
+janela.state("zoomed")
+janela.configure(bg="#0f172a")
 
 
 # =========================
-# FORM CLIENTE (CRIAR)
+# ESTILO
 # =========================
 
-def abrir_form_cliente():
-    form = Toplevel()
-    form.title("Adicionar Cliente")
-    form.geometry("350x300")
+style = ttk.Style()
+style.theme_use("clam")
 
-    Label(form, text="Nome").pack()
-    nome = Entry(form)
-    nome.pack()
+style.configure("Treeview",
+                background="#1e293b",
+                foreground="white",
+                rowheight=32,
+                fieldbackground="#1e293b",
+                font=("Arial", 10))
 
-    Label(form, text="Telefone").pack()
-    telefone = Entry(form)
-    telefone.pack()
+style.configure("Treeview.Heading",
+                background="#1d4ed8",
+                foreground="white",
+                font=("Arial", 10, "bold"),
+                padding=8)
 
-    Label(form, text="Email").pack()
-    email = Entry(form)
-    email.pack()
-
-    Label(form, text="NIF").pack()
-    nif = Entry(form)
-    nif.pack()
-
-
-    def salvar():
-        resultado = criar_cliente(
-            nome.get(),
-            telefone.get(),
-            email.get(),
-            nif.get()
-        )
-
-        if resultado["status"] == 201:
-            messagebox.showinfo("Sucesso", "Cliente criado! 👍")
-            form.destroy()
-        else:
-            messagebox.showerror("Erro", resultado.get("erro", "Erro"))
+style.map("Treeview",
+          background=[("selected", "#2563eb")],
+          foreground=[("selected", "white")])
 
 
-    Button(form, text="Salvar", command=salvar, bg="green", fg="white").pack(pady=15)
+# =========================
+# HEADER
+# =========================
+
+header = Frame(janela, bg="#1d4ed8", height=65)
+header.pack(side=TOP, fill=X)
+header.pack_propagate(False)
+
+Label(header,
+      text="🍺  SISTEMA DE GESTÃO DE BAR",
+      bg="#1d4ed8",
+      fg="white",
+      font=("Arial", 17, "bold")).pack(side=LEFT, padx=25, pady=18)
+
+Label(header,
+      text="Bar Manager v1.0",
+      bg="#1d4ed8",
+      fg="#bfdbfe",
+      font=("Arial", 9)).pack(side=RIGHT, padx=25)
+
+
+# =========================
+# SIDEBAR
+# =========================
+
+sidebar = Frame(janela, bg="#0b1220", width=220)
+sidebar.pack(side=LEFT, fill=Y)
+sidebar.pack_propagate(False)
+
+content = Frame(janela, bg="#0f172a")
+content.pack(side=RIGHT, fill=BOTH, expand=True)
+
+Label(sidebar, text="MENU", bg="#0b1220", fg="#64748b",
+      font=("Arial", 9, "bold")).pack(pady=(25, 5))
+
+
+def sidebar_btn(text, cmd):
+    b = Button(sidebar,
+               text=text,
+               command=cmd,
+               bg="#0b1220",
+               fg="#e2e8f0",
+               activebackground="#1e293b",
+               activeforeground="white",
+               relief=FLAT,
+               pady=11,
+               width=22,
+               anchor=W,
+               padx=18,
+               font=("Arial", 10),
+               cursor="hand2")
+    b.pack(fill=X, pady=1)
+
+    def on_enter(e): b.configure(bg="#1e293b")
+    def on_leave(e): b.configure(bg="#0b1220")
+    b.bind("<Enter>", on_enter)
+    b.bind("<Leave>", on_leave)
+
+    return b
+
+
+sidebar_btn("  👥  Clientes",   lambda: abrir_tabela_clientes())
+sidebar_btn("  🍺  Produtos",   lambda: abrir_tabela_produtos())
+sidebar_btn("  🧑‍🍳  Atendentes", lambda: abrir_tabela_atendentes())
+sidebar_btn("  🧾  Pedidos",    lambda: abrir_tabela_pedidos())
+
+Frame(sidebar, bg="#1e293b", height=1).pack(fill=X, padx=15, pady=20)
+
+b_sair = Button(sidebar,
+                text="  ❌  Sair",
+                command=janela.destroy,
+                bg="#0b1220",
+                fg="#f87171",
+                activebackground="#1e293b",
+                activeforeground="#f87171",
+                relief=FLAT,
+                pady=11,
+                width=22,
+                anchor=W,
+                padx=18,
+                font=("Arial", 10),
+                cursor="hand2")
+b_sair.pack(fill=X, pady=1)
+
+
+# =========================
+# FUNÇÃO TABELA
+# =========================
+
+def criar_tabela(parent, cols):
+    frame = Frame(parent, bg="#0f172a")
+    frame.pack(fill=BOTH, expand=True, padx=25, pady=20)
+
+    tabela = ttk.Treeview(frame, columns=cols, show="headings")
+
+    scroll = ttk.Scrollbar(frame, orient=VERTICAL, command=tabela.yview)
+    tabela.configure(yscrollcommand=scroll.set)
+
+    scroll.pack(side=RIGHT, fill=Y)
+    tabela.pack(fill=BOTH, expand=True)
+
+    for c in cols:
+        tabela.heading(c, text=c)
+        tabela.column(c, width=200)
+
+    tabela.tag_configure("odd",  background="#1e293b")
+    tabela.tag_configure("even", background="#172035")
+
+    return tabela
+
+
+def preencher(tabela, rows):
+    for i, row in enumerate(rows):
+        tag = "odd" if i % 2 == 0 else "even"
+        tabela.insert("", END, values=row, tags=(tag,))
 
 
 # =========================
 # CLIENTES
 # =========================
 
-def abrir_clientes():
-    nova = Toplevel()
-    nova.title("Clientes")
-    nova.geometry("700x400")
+def abrir_tabela_clientes():
+    win = Toplevel(janela)
+    win.state("zoomed")
+    win.title("Clientes")
+    win.configure(bg="#0f172a")
 
-    tabela = ttk.Treeview(
-        nova,
-        columns=("Nome", "Telefone", "Email", "NIF"),
-        show="headings"
-    )
+    Label(win, text="👥  Clientes", bg="#0f172a", fg="white",
+          font=("Arial", 15, "bold")).pack(anchor=W, padx=25, pady=(20, 0))
 
-    for col in ("Nome", "Telefone", "Email", "NIF"):
-        tabela.heading(col, text=col)
-        tabela.column(col, width=150)
+    tabela = criar_tabela(win, ("Nome", "Telefone", "Email", "NIF"))
 
-    tabela.pack(fill=BOTH, expand=True)
-
-    resultado = listar_clientes()
-
-    if resultado and "data" in resultado:
-        for c in resultado["data"]:
-            tabela.insert(
-                "",
-                END,
-                values=(c["nome"], c["telefone"], c["email"], c["nif"])
-            )
-
-    Button(
-        nova,
-        text="➕ Adicionar Cliente",
-        command=abrir_form_cliente,
-        bg="green",
-        fg="white"
-    ).pack(pady=10)
+    data = listar_clientes()
+    if data and "data" in data:
+        preencher(tabela, [(c["nome"], c["telefone"], c["email"], c["nif"])
+                           for c in data["data"]])
 
 
 # =========================
-# PRODUTOS (🍺 MENU BAR MELHORADO)
+# PRODUTOS
 # =========================
 
-def abrir_produtos():
-    nova = Toplevel()
-    nova.title("🍺 Menu do Bar")
-    nova.geometry("750x450")
+def abrir_tabela_produtos():
+    win = Toplevel(janela)
+    win.state("zoomed")
+    win.title("Produtos")
+    win.configure(bg="#0f172a")
 
-    Label(
-        nova,
-        text="🍺 MENU DO BAR",
-        font=("Arial", 16, "bold")
-    ).pack(pady=10)
+    Label(win, text="🍺  Produtos", bg="#0f172a", fg="white",
+          font=("Arial", 15, "bold")).pack(anchor=W, padx=25, pady=(20, 0))
 
-    tabela = ttk.Treeview(
-        nova,
-        columns=("Nome", "Categoria", "Preço"),
-        show="headings"
-    )
+    tabela = criar_tabela(win, ("Nome", "Categoria", "Preço"))
 
-    tabela.heading("Nome", text="Nome")
-    tabela.heading("Categoria", text="Categoria")
-    tabela.heading("Preço", text="Preço (€)")
-
-    tabela.column("Nome", width=250)
-    tabela.column("Categoria", width=150)
-    tabela.column("Preço", width=100)
-
-    tabela.pack(fill=BOTH, expand=True)
-
-    resultado = listar_produtos()
-
-    if resultado and "data" in resultado:
-        for p in resultado["data"]:
-            tabela.insert(
-                "",
-                END,
-                values=(
-                    p["nome"],
-                    p["categoria"],
-                    f"{p['preco']:.2f} €"
-                )
-            )
+    data = listar_produtos()
+    if data and "data" in data:
+        preencher(tabela, [(p["nome"], p["categoria"], f"€ {p['preco']:.2f}")
+                           for p in data["data"]])
 
 
 # =========================
 # ATENDENTES
 # =========================
 
-def abrir_atendentes():
-    nova = Toplevel()
-    nova.title("Atendentes")
-    nova.geometry("700x400")
+def abrir_tabela_atendentes():
+    win = Toplevel(janela)
+    win.state("zoomed")
+    win.title("Atendentes")
+    win.configure(bg="#0f172a")
 
-    tabela = ttk.Treeview(
-        nova,
-        columns=("Nome", "Tipo", "Nascimento"),
-        show="headings"
-    )
+    Label(win, text="🧑‍🍳  Atendentes", bg="#0f172a", fg="white",
+          font=("Arial", 15, "bold")).pack(anchor=W, padx=25, pady=(20, 0))
 
-    for col in ("Nome", "Tipo", "Nascimento"):
-        tabela.heading(col, text=col)
-        tabela.column(col, width=150)
+    tabela = criar_tabela(win, ("Nome", "Tipo", "Nascimento"))
 
-    tabela.pack(fill=BOTH, expand=True)
-
-    resultado = listar_atendentes()
-
-    if resultado and "data" in resultado:
-        for a in resultado["data"]:
-            tabela.insert(
-                "",
-                END,
-                values=(a["nome"], a["tipo"], a["data_nascimento"])
-            )
+    data = listar_atendentes()
+    if data and "data" in data:
+        preencher(tabela, [(a["nome"], a["tipo"], a["data_nascimento"])
+                           for a in data["data"]])
 
 
 # =========================
 # PEDIDOS
 # =========================
 
-def abrir_pedidos():
-    nova = Toplevel()
-    nova.title("Pedidos")
-    nova.geometry("700x400")
+def abrir_tabela_pedidos():
+    win = Toplevel(janela)
+    win.state("zoomed")
+    win.title("Pedidos")
+    win.configure(bg="#0f172a")
 
-    tabela = ttk.Treeview(
-        nova,
-        columns=("Cliente", "Atendente", "Total"),
-        show="headings"
-    )
+    Label(win, text="🧾  Pedidos", bg="#0f172a", fg="white",
+          font=("Arial", 15, "bold")).pack(anchor=W, padx=25, pady=(20, 0))
 
-    for col in ("Cliente", "Atendente", "Total"):
-        tabela.heading(col, text=col)
-        tabela.column(col, width=150)
+    tabela = criar_tabela(win, ("Cliente", "Atendente", "Total"))
 
-    tabela.pack(fill=BOTH, expand=True)
-
-    resultado = listar_pedidos()
-
-    if resultado and "data" in resultado:
-        for p in resultado["data"]:
-            tabela.insert(
-                "",
-                END,
-                values=(p["cliente"], p["atendente"], p["valor_total"])
-            )
+    data = listar_pedidos()
+    if data and "data" in data:
+        preencher(tabela, [(p["cliente"], p["atendente"], f"€ {p['valor_total']:.2f}")
+                           for p in data["data"]])
 
 
 # =========================
-# MENU PRINCIPAL
+# DASHBOARD CARDS
 # =========================
 
-Label(
-    janela,
-    text="🍺 SISTEMA DE BAR",
-    font=("Arial", 18, "bold")
-).pack(pady=20)
+Label(content, text="RESUMO", bg="#0f172a", fg="#475569",
+      font=("Arial", 9, "bold")).pack(anchor=W, padx=30, pady=(30, 10))
 
-Button(janela, text="Clientes", width=20, command=abrir_clientes).pack(pady=5)
-Button(janela, text="Produtos (Menu)", width=20, command=abrir_produtos).pack(pady=5)
-Button(janela, text="Atendentes", width=20, command=abrir_atendentes).pack(pady=5)
-Button(janela, text="Pedidos", width=20, command=abrir_pedidos).pack(pady=5)
+cards = Frame(content, bg="#0f172a")
+cards.pack(anchor=W, padx=25)
 
-Button(
-    janela,
-    text="Sair",
-    width=20,
-    command=janela.destroy,
-    bg="red",
-    fg="white"
-).pack(pady=20)
+
+def card(emoji, texto, valor, cor):
+    f = Frame(cards, bg="#1e293b", width=175, height=105)
+    f.pack(side=LEFT, padx=8)
+    f.pack_propagate(False)
+
+    Label(f, text=emoji, bg="#1e293b", font=("Arial", 20)).pack(pady=(12, 0))
+    Label(f, text=valor, bg="#1e293b", fg=cor,
+          font=("Arial", 16, "bold")).pack()
+    Label(f, text=texto, bg="#1e293b", fg="#64748b",
+          font=("Arial", 9)).pack()
+
+
+try:
+    card("👥", "Clientes",   len(listar_clientes()["data"]),   "#38bdf8")
+    card("🍺", "Produtos",   len(listar_produtos()["data"]),   "#34d399")
+    card("🧑‍🍳", "Atendentes", len(listar_atendentes()["data"]), "#a78bfa")
+    card("🧾", "Pedidos",    len(listar_pedidos()["data"]),    "#fb923c")
+except:
+    pass
 
 
 janela.mainloop()
