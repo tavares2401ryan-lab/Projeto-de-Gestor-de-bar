@@ -1,11 +1,21 @@
 import uuid
 import json
 import os
+import logging
 
 ARQUIVO = "clientes.json"
 
 clientes = []
 
+# =========================
+# LOGGING
+# =========================
+
+logging.basicConfig(
+    filename="sistema.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 # =========================
 # PERSISTÊNCIA
@@ -64,6 +74,7 @@ def validar_nif(nif):
 
 def criar_cliente(nome, telefone, email, nif, auth=True):
     carregar_clientes()
+
     if not autorizado(auth):
         return {"status": 401, "erro": "Unauthorized"}
 
@@ -98,7 +109,7 @@ def criar_cliente(nome, telefone, email, nif, auth=True):
     clientes.append(cliente)
 
     salvar_clientes()
-  
+    logging.info("Cliente criado")
 
     return {"status": 201, "data": cliente}
 
@@ -107,7 +118,7 @@ def listar_clientes(auth=True):
     if not autorizado(auth):
         return {"status": 401, "erro": "Unauthorized"}
 
-    carregar_clientes()  # 🔥 atualiza lista
+    carregar_clientes()
 
     return {"status": 200, "data": clientes}
 
@@ -116,12 +127,13 @@ def obter_cliente(id, auth=True):
     if not autorizado(auth):
         return {"status": 401, "erro": "Unauthorized"}
 
-    carregar_clientes()  # 🔥 atualiza lista
+    carregar_clientes()
 
     for cliente in clientes:
         if cliente["id"] == id:
             return {"status": 200, "data": cliente}
 
+    logging.warning("Cliente não encontrado")
     return {"status": 404, "erro": "Cliente não encontrado"}
 
 
@@ -135,6 +147,7 @@ def atualizar_cliente(
     auth=True
 ):
     carregar_clientes()
+
     if not autorizado(auth):
         return {"status": 401, "erro": "Unauthorized"}
 
@@ -148,21 +161,18 @@ def atualizar_cliente(
                 cliente["nome"] = novo_nome
 
             if novo_telefone:
-                
                 if not validar_telefone(novo_telefone):
                     return {"status": 400, "erro": "Telefone inválido"}
 
                 cliente["telefone"] = novo_telefone
 
             if novo_email:
-                carregar_clientes()
                 if not validar_email(novo_email):
                     return {"status": 400, "erro": "Email inválido"}
 
                 cliente["email"] = novo_email
 
             if novo_nif:
-                carregar_clientes()
                 if not validar_nif(novo_nif):
                     return {"status": 400, "erro": "NIF inválido"}
 
@@ -172,15 +182,17 @@ def atualizar_cliente(
                 cliente["ativo"] = bool(ativo)
 
             salvar_clientes()
-            
+            logging.info("Cliente atualizado")
 
             return {"status": 200, "data": cliente}
 
+    logging.warning("Cliente não encontrado")
     return {"status": 404, "erro": "Cliente não encontrado"}
 
 
 def remover_cliente(id, auth=True):
     carregar_clientes()
+
     if not autorizado(auth):
         return {"status": 401, "erro": "Unauthorized"}
 
@@ -190,7 +202,9 @@ def remover_cliente(id, auth=True):
             clientes.remove(cliente)
 
             salvar_clientes()
+            logging.info("Cliente removido")
 
             return {"status": 200, "mensagem": "Cliente removido"}
 
+    logging.warning("Cliente não encontrado")
     return {"status": 404, "erro": "Cliente não encontrado"}
